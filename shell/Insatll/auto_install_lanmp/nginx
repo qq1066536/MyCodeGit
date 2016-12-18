@@ -1,0 +1,76 @@
+#!/bin/bash
+# chkconfig: 35 85 15  
+# description: Nginx is an HTTP(S) server, HTTP(S) reverse
+set -e
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DESC="nginx daemon"
+NAME=nginx
+DAEMON=/usr/local/nginx/sbin/$NAME
+SCRIPTNAME=/etc/init.d/$NAME
+PID=/usr/local/nginx/logs/nginx.pid
+test -x $DAEMON || exit 0
+d_start(){
+	$DAEMON || echo -n " already running"
+}
+d_stop() {
+	$DAEMON -s stop || echo -n " not running"
+}
+d_reload() {
+    	$DAEMON -s reload || echo -n " counld not reload"
+}
+case "$1" in
+	start|START)
+		if test -s "$PID" ; then
+			echo -n "$NAME always Running"
+			echo "."
+		else
+		echo -n "Starting $DESC:$NAME"
+		d_start
+		echo "."
+		fi
+		;;
+	stop|STOP)
+		if test -s "$PID" ; then
+   			echo -n "Stopping $DESC:$NAME"
+   			d_stop
+   			echo "."
+		else
+			echo -n "$NAME no running"
+			echo  "."
+		fi
+		;;
+	reload|RELOAD)
+		echo -n "Reloading $DESC configuration..."
+		d_reload
+		echo "reloaded."
+		;;
+	restart|RESTART)
+		if  test -s "$PID"  ; then
+   			echo -n "Restarting $DESC: $NAME"
+   			d_stop
+   			sleep 2
+    			d_start
+    			echo "."
+		else
+			echo -n "Server $NAME not running"
+			echo -n "Start $DESC:$NAME"
+			d_start
+			echo "."
+		fi
+		;;
+	status|STATUS)
+		if test -s "$PID" ; then
+			echo -n "$NAME is runnong"
+			echo "."
+		else
+			echo -n "$NAME not running"
+			echo "."
+		fi
+		;;
+	*)
+    		echo "Usage: $SCRIPTNAME {start|stop|restart|reload|status}" >&2
+   		exit 3
+		;;
+esac
+exit 0
+
