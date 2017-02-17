@@ -57,13 +57,24 @@ echo "================更新为国内YUM源=================="
     #rename *.repo{,.$(date +%F)
     ping -c 1 www.163.com>/dev/null
 	if [ $? -eq 0 ];then
-		if [ ! -f CentOS6-Base-163.repo ];then
-			mv CentOS6-Base-163.repo{,.$(date +%F)}
+		beta=`cat /etc/redhat-release |awk '{print $7}'|awk -F. '{print $1}'`
+		echo $beta
+		if [ $beta -ge 7 ] ;then
+			if [ -f CentOS7-Base-163.repo ]; then
+				mv CentOS7-Base-163.repo{,.$(date +%F)}
+			fi
+			
+			wget -q http://mirrors.163.com/.help/CentOS7-Base-163.repo >/dev/null
+			sleep 2
+        		sed -i "s/\$releasever/7/g" CentOS7-Base-163.repo
+		elif [ $beta -ge 6 ] ; then
+			if [  -f CentOS6-Base-163.repo ] ;then
+       				mv CentOS6-Base-163.repo{,.$(date +%F)}
+			fi
+			wget -q  http://mirrors.163.com/.help/CentOS6-Base-163.repo >/dev/null
+			sleep 2
+        		sed -i "s/\$releasever/6.8/g" CentOS6-Base-163.repo
 		fi
-		wget -q  http://mirrors.163.com/.help/CentOS6-Base-163.repo >/dev/null
-		sleep 2
-        sed -i "s/\$releasever/6.8/g" CentOS6-Base-163.repo
-        #sed -i '/s/$releasever/6.8/g' CentOS6-Base-163.repo   	#此处可提升为判断系统版本号，给出不同的版本节点
 	else
 		echo "无法连接网络。"
 		exit $?
