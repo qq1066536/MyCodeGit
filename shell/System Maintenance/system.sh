@@ -57,7 +57,9 @@ echo "================更新为国内YUM源=================="
     #rename *.repo{,.$(date +%F)
     ping -c 1 www.163.com>/dev/null
 	if [ $? -eq 0 ];then
-        mv CentOS6-Base-163.repo{,.$(date +%F)}
+		if [ ! -f CentOS6-Base-163.repo ];then
+			mv CentOS6-Base-163.repo{,.$(date +%F)}
+		fi
 		wget -q  http://mirrors.163.com/.help/CentOS6-Base-163.repo >/dev/null
 		sleep 2
         sed -i "s/\$releasever/6.8/g" CentOS6-Base-163.repo
