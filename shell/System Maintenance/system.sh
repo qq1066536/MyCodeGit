@@ -12,12 +12,12 @@ read -p "请输入你的子网掩码：" NETMASK
 read -p "请输入你的网关地址：" GATEWAY
 read -p "请输入你的DNS1：" DNS1
 
-sed -i  '/^ONBOOT/s/no/yes/' /etc/sysconfig/network-scripts/ifcfg-eth0
-sed -i  '/^BOOTPROTO/s/dhcp/static/' /etc/sysconfig/network-scripts/ifcfg-eth0
-sed -i "/^IPADDR/s/[0-9].\+/$IPADDR/ "  /etc/sysconfig/network-scripts/ifcfg-eth0
-sed -i "/^NETMASK/s/[0-9].\+/$NETMASK/ "  /etc/sysconfig/network-scripts/ifcfg-eth0
-sed -i "/^GATEWAY/s/[0-9].\+/$GATEWAY/ "  /etc/sysconfig/network-scripts/ifcfg-eth0
-sed -i "/^DNS1/s/[0-9].\+/$DNS1/ "  /etc/sysconfig/network-scripts/ifcfg-eth0
+sed -i  '/^ONBOOT/s/no/yes/' $netmasker
+sed -i  '/^BOOTPROTO/s/dhcp/static/' $netmasker
+sed -i "/^IPADDR/s/[0-9].\+/$IPADDR/ "  $netmasker
+sed -i "/^NETMASK/s/[0-9].\+/$NETMASK/ "  $netmasker
+sed -i "/^GATEWAY/s/[0-9].\+/$GATEWAY/ "  $netmasker
+sed -i "/^DNS1/s/\[0-9].\+/$DNS1/ "  $netmasker
 service  network restart >&/dev/null
 	ping -c 3 -w 5 www.baidu.com >&/dev/null
 	if  [[ $? != 0 ]];then
@@ -33,12 +33,12 @@ echo "==================配置主机名称===================="
 read  -p "请输入你的主机名称：" HOSTNAME
 sed -i '3,$d' /etc/hosts
 sed -i '2,$d' /etc/sysconfig/network
-#sed -i  '/^HOSTNAME.*$/d' /etc/sysconfig/network-scripts/ifcfg-eth0
+#sed -i  '/^HOSTNAME.*$/d' $netmasker
 
 sed -i  '/^HOSTNAME.*$/d' /etc/hosts
-#`cat /etc/sysconfig/network-scripts/ifcfg-eth0|grep ^HOSTNAME`
+#`cat $netmasker|grep ^HOSTNAME`
 #if [ $? -eq 0 ];then
-#	sed -i  '/^HOSTNAME/s/=$/$HOSTNAME/' /etc/sysconfig/network-scripts/ifcfg-eth0
+#	sed -i  '/^HOSTNAME/s/=$/$HOSTNAME/' $netmasker
 #else
 	echo "HOSTNAME=$HOSTNAME" >> /etc/sysconfig/network
 #fi
@@ -255,8 +255,9 @@ else
     ErrorNo=0
     DATE=$(date +%F)
     DISK_SDA=$(df -h |grep "/$"|awk '{print $5}')
-    IPADDR=`ifconfig |grep Bcast|awk '{print $2}'|awk -F: '{print $2}'`   
+    IPADDR=`ifconfig |grep broad|awk '{print $2}'`
     cpu_uptime=`uptime|awk -F: '{print $4}'`
-	main
+    netmasker=`ls /etc/sysconfig/network-scripts/ifcfg-e*`
+    main
 fi	
 
